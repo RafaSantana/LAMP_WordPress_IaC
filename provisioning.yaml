@@ -1,0 +1,124 @@
+---
+- hosts: db_mysql
+  become: true
+  tasks:
+    - name: Instalando MySQL server
+      apt: name=mysql-server state=present
+      become: true
+
+    - name: Instalando módulos MySQL
+      apt:
+        name:
+          - python3-mysqldb
+          - python3-dev
+          - default-libmysqlclient-dev
+          - build-essential
+        state: present
+        update_cache: yes
+      become: true
+
+    - name: Create mysql database - wordpress_db
+      mysql_db:
+        name: wordpress_db
+        login_unix_socket: /var/run/mysqld/mysqld.sock
+        state: present 
+      become: yes
+    
+    - name: Criando usuário do MySQL
+      mysql_user:
+        login_user: root
+        name: wordpress_user
+        password: '12345'
+        priv: 'wordpress_db.*:ALL'
+        state: present
+      become: true
+    - name: Alterando arquivo mysqld.cnf para aceitar acesso remoto
+
+- hosts: wordpress
+  become: true
+  handlers:
+  - name: restart Apache
+    service:
+      name: apache2
+      state: restarted
+    become: true
+  tasks:
+    - name: instalação do software-properties-common
+      apt: name=software-properties-common
+      become: true
+
+    - name: "Instalando repo PHP 7.4"
+      apt_repository:
+        repo="ppa:ondrej/php"
+   
+#    - name: "Atualizando repositório"
+#      apt: update_cache=yes
+        
+    - name: Instalando Apache
+      apt: name=apache2 state=present
+
+    - name: Instalando PHP 7.4
+      apt: name=php7.4 state=present
+
+    - name: Instalando módulos PHP e MySQL para pacote LAMP
+      apt:
+        name:
+          - python3-mysqldb
+          - python3-dev
+          - default-libmysqlclient-dev
+          - build-essential
+          - php7.4-mysql
+          - php7.4-curl
+          - php7.4-json
+          - php7.4-cgi
+          - php7.4-xsl
+          - php7.4-cgi
+          - php7.4-gd
+          - php7.4-mbstring
+          - php7.4-zip
+          - php7.4-xmlrpc
+          - php7.4-soap
+          - php7.4-intl
+          - libapache2-mod-php
+        state: present
+        update_cache: yes
+      become: true
+
+
+    - name: Download do Wordpress .tar
+      get_url:
+        url: https://br.wordpress.org/latest-pt_BR.tar.gz
+        dest: /tmp/wordpress.tar.gz
+
+    - name: Descompactar o Wordpress
+      unarchive:
+        src: /tmp/wordpress.tar.gz
+        dest: /var/www/
+        remote_src: true
+      become: true
+
+    - name: Modificando arquivo de exemplo para instalação do Wordpress
+      copy:
+        src: /var/www/wordpress/wp-config-sample.php
+        dest: /var/www/wordpress/wp-config.php
+        remote_src: true
+      become: true
+
+    - name: alterando arquivo config para comunicação com o DB
+      replace:
+        path: /var/www/wordpress/wp-config.php
+        regexp: "{{ item.regex }}"
+        replace: "{{ item.value }}"
+      loop:
+        - {regex: 'nome_do_banco_de_dados_aqui', value: 'wordpress_db'}
+        - {regex: 'nome_de_usuario_aqui', value: 'wordpress_user'}
+        - {regex: 'senha_aqui', value: '12345'}
+      become: true
+
+    - name: Configurando Apache para buscar o index na pasta do Wordpress
+      copy:
+        src: 'files/000-default.conf'
+        dest: '/etc/apache2/sites-available/000-default.conf'
+      become: true
+      notify:
+        - restart Apache
