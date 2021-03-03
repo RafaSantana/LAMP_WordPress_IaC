@@ -32,7 +32,11 @@
         priv: 'wordpress_db.*:ALL'
         state: present
       become: true
+
     - name: Alterando arquivo mysqld.cnf para aceitar acesso remoto
+      copy:
+        src: 'files/mysqld.cnf'
+        dest: '/etc/mysql/mysql.conf.d/mysqld.cnf'
 
 - hosts: wordpress
   become: true
