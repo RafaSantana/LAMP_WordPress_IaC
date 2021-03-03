@@ -39,13 +39,13 @@
         state: present
       become: true
 
-    - name: Alterando arquivo mysqld.cnf para aceitar acesso remoto
-      copy:
-        src: 'files/mysqld.cnf'
-        dest: '/etc/mysql/mysql.conf.d/mysqld.cnf'
-      become: true
-      notify:
-        - restart mysql
+#    - name: Alterando arquivo mysqld.cnf para aceitar acesso remoto
+#      copy:
+#        src: 'files/mysqld.cnf'
+#        dest: '/etc/mysql/mysql.conf.d/mysqld.cnf'
+#      become: true
+#      notify:
+#        - restart mysql
 
 - hosts: wordpress
   become: true
@@ -126,6 +126,7 @@
         - {regex: 'nome_do_banco_de_dados_aqui', value: 'wordpress_db'}
         - {regex: 'nome_de_usuario_aqui', value: 'wordpress_user'}
         - {regex: 'senha_aqui', value: '12345'}
+        - { regex: 'localhost', value: '172.17.177.42'}
       become: true
 
     - name: Configurando Apache para buscar o index na pasta do Wordpress
