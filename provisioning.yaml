@@ -38,6 +38,10 @@
         priv: 'wordpress_db.*:ALL'
         state: present
       become: true
+      with_items:
+        - 'localhost'
+        - '127.0.0.1'
+        - '172.17.177.40'
 
 #    - name: Alterando arquivo mysqld.cnf para aceitar acesso remoto
 #      copy:
