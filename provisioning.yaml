@@ -1,5 +1,11 @@
 ---
 - hosts: db_mysql
+  handlers:
+    - name: restart mysql
+      service:
+        name: mysql
+        state: restarted
+      become: true
   become: true
   tasks:
     - name: Instalando MySQL server
@@ -37,6 +43,9 @@
       copy:
         src: 'files/mysqld.cnf'
         dest: '/etc/mysql/mysql.conf.d/mysqld.cnf'
+      become: true
+      notify:
+        - restart mysql
 
 - hosts: wordpress
   become: true
