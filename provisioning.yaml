@@ -43,13 +43,13 @@
         - '127.0.0.1'
         - '172.17.177.40'
 
-#    - name: Alterando arquivo mysqld.cnf para aceitar acesso remoto
-#      copy:
-#        src: 'files/mysqld.cnf'
-#        dest: '/etc/mysql/mysql.conf.d/mysqld.cnf'
-#      become: true
-#      notify:
-#        - restart mysql
+    - name: Alterando arquivo mysqld.cnf para aceitar acesso remoto
+      copy:
+        src: 'files/mysqld.cnf'
+        dest: '/etc/mysql/mysql.conf.d/mysqld.cnf'
+      become: true
+      notify:
+        - restart mysql
 
 - hosts: wordpress
   become: true
