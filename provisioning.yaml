@@ -23,9 +23,9 @@
         update_cache: yes
       become: true
 
-    - name: Create mysql database - wordpress_db
+    - name: Criando banco de dados para o WordPress
       mysql_db:
-        name: wordpress_db
+        name: "{{ wp_db_name }}"
         login_unix_socket: /var/run/mysqld/mysqld.sock
         state: present 
       become: yes
@@ -33,15 +33,15 @@
     - name: Criando usuário do MySQL
       mysql_user:
         login_user: root
-        name: wordpress_user
-        password: '12345'
-        priv: 'wordpress_db.*:ALL'
+        name: "{{ wp_db_user }}"
+        password: "{{ wp_db_user_password }}"
+        priv: "{{ wp_db_name }}.*:ALL"
         state: present
         host: "{{ item }}"
       loop:
         - 'localhost'
         - '127.0.0.1'
-        - '172.17.177.40'
+        - '{{ wp_host_ip }}'
       become: true
 
     - name: Alterando arquivo mysqld.cnf para aceitar acesso remoto
@@ -117,21 +117,21 @@
 
     - name: Modificando arquivo de exemplo para instalação do Wordpress
       copy:
-        src: /var/www/wordpress/wp-config-sample.php
-        dest: /var/www/wordpress/wp-config.php
+        src: "{{ wp_installation_dir }}/wp-config-sample.php"
+        dest: "{{ wp_installation_dir }}/wp-config.php"
         remote_src: true
       become: true
 
     - name: alterando arquivo config para comunicação com o DB
       replace:
-        path: /var/www/wordpress/wp-config.php
+        path: "{{ wp_installation_dir }}/wp-config.php"
         regexp: "{{ item.regex }}"
         replace: "{{ item.value }}"
       loop:
-        - {regex: 'nome_do_banco_de_dados_aqui', value: 'wordpress_db'}
-        - {regex: 'nome_de_usuario_aqui', value: 'wordpress_user'}
-        - {regex: 'senha_aqui', value: '12345'}
-        - { regex: 'localhost', value: '172.17.177.42'}
+        - {regex: 'nome_do_banco_de_dados_aqui', value: "{{ wp_db_name }}"}
+        - {regex: 'nome_de_usuario_aqui', value: "{{ wp_db_user }}"}
+        - {regex: 'senha_aqui', value: "{{ wp_db_user_password }}"}
+        - { regex: 'localhost', value: "{{ wp_db_ip }}"}
       become: true
 
     - name: Configurando Apache para buscar o index na pasta do Wordpress
