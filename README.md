@@ -21,7 +21,7 @@ The goal is to mount a server [Wordpress](https://wordpress.org/) using [Vagrant
   * Change Wordpress installation configuration file
   * Set up Wordpress to communicate with DB
 
-### Server 2 - **MySQL**
+#### Server 2 - **MySQL**
 
 * MySQL - Latest version
   * Installation of modules for communication and manipulation with Ansible and PHP
