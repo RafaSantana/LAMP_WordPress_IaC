@@ -135,8 +135,8 @@
       become: true
 
     - name: Configurando Apache para buscar o index na pasta do Wordpress
-      copy:
-        src: 'files/000-default.conf'
+      template:
+        src: 'templates/000-default.conf.j2'
         dest: '/etc/apache2/sites-available/000-default.conf'
       become: true
       notify:
