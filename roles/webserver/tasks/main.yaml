@@ -1,0 +1,38 @@
+---
+- name: instalação do software-properties-common
+  apt: name=software-properties-common
+  become: true
+
+- name: "Instalando repo PHP 7.4"
+  apt_repository:
+    repo="ppa:ondrej/php"
+
+- name: Instalando PHP 7.4
+  apt: name=php7.4 state=present
+
+- name: Instalando Apache
+  apt: name=apache2 state=present
+
+- name: Instalando módulos PHP e MySQL para pacote LAMP
+  apt:
+    name:
+      - python3-mysqldb
+      - python3-dev
+      - default-libmysqlclient-dev
+      - build-essential
+      - php7.4-mysql
+      - php7.4-curl
+      - php7.4-json
+      - php7.4-cgi
+      - php7.4-xsl
+      - php7.4-cgi
+      - php7.4-gd
+      - php7.4-mbstring
+      - php7.4-zip
+      - php7.4-xmlrpc
+      - php7.4-soap
+      - php7.4-intl
+      - libapache2-mod-php
+    state: present
+    update_cache: yes
+  become: true
