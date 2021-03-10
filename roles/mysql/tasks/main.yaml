@@ -30,8 +30,6 @@
     state: present
     host: "{{ item }}"
   loop:
-    - 'localhost'
-    - '127.0.0.1'
     - '{{ wp_host_ip }}'
   become: true
 
